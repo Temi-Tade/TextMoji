@@ -1,5 +1,6 @@
 <script lang="ts">
     import image from '$lib/assets/favicon.svg';
+    import { base } from '$app/paths';
 </script>
 
 <header class="flex justify-between p-2 items-center shadow-sm sticky top-0 bg-[#fff] h-[8dvh]">
@@ -14,7 +15,7 @@
         <div class="text-center">
             <h1 class="text-3xl font-bold">TextMoji</h1>
             <p>Discover your most used emojis in your WhatsApp chats.</p>
-            <a href="/app">Try it out &rarr;</a>
+            <a href="{base}/app">Try it out &rarr;</a>
         </div>
     </div>
 </div>
