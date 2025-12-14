@@ -3,6 +3,7 @@
 	import Modal from "../../ui/Modal.svelte";
 	import Toast from "../../ui/Toast.svelte";
 	import Header from "../../ui/Header.svelte";
+    import {base} from '$app/paths';
 
     const formatter = Intl.NumberFormat('en-US', {
         style: "decimal",
@@ -24,11 +25,9 @@
     let toastText: string = $state("");
     let modalText: string = $state("Loading Unicode Emoji list. Please wait");
 
-    let isCounting = $state(false);
-
     onMount(() => {
         const request = new XMLHttpRequest();
-        request.open('GET', "/array.json");
+        request.open('GET', `${base}/array.json`);
 
         request.onload = function() {
             if (request.status === 200) {
@@ -61,7 +60,7 @@
     }
 
     function parseChat(chat:string) {
-        toastText = "Counting... hang on, this might take a while";
+        alert("Analyzing and counting... Depending on how large the chat it, this might take a while.");
         const chars = chat.replace(/\d/g, "").split("").filter(char => char !== " ");
 
         unicodeEmojis.forEach((e: any, i:number) => {
@@ -72,26 +71,23 @@
         return emojis;
     }
 
-    function countEmojis() {
-        return new Promise(resolve => {
-            countedEmojis.length = 0;
-            const parsedEmojis = parseChat(result);
-            uniqueEmojis = [...new Set(parsedEmojis)];
-            
-            uniqueEmojis.forEach(async (e:any) => {
-                countedEmojis.push({
-                    emoji: e,
-                    count: parsedEmojis.filter((c: any) => e.charCodeAt() === c.charCodeAt()).length
-                });
+    async function countEmojis() {
+        countedEmojis.length = 0;
+        const parsedEmojis = parseChat(result);
+        uniqueEmojis = [...new Set(parsedEmojis)];
+        
+        uniqueEmojis.forEach(async (e:any) => {
+            countedEmojis.push({
+                emoji: e,
+                count: parsedEmojis.filter((c: any) => e.charCodeAt() === c.charCodeAt()).length
             });
+        });
 
-            countedEmojis.sort((a,b) => b.count - a.count);
-            if (countedEmojis.length === 0) {
-                showModal = true;
-                modalText = "I could not find emojis in here, ensure you uploaded a TXT file of an exported WhatsApp chat. If you are sure you did, you lot don't use emojis when chatting eh?";
-            }
-            resolve(countedEmojis);
-        })
+        countedEmojis.sort((a,b) => b.count - a.count);
+        if (countedEmojis.length === 0) {
+            showModal = true;
+            modalText = "I could not find emojis in here, ensure you uploaded a TXT file of an exported WhatsApp chat. If you are sure you did, you lot don't use emojis when chatting eh?";   
+        }
     }
 
     function tryAnotherChat() {
@@ -116,8 +112,7 @@
                     </div>
 
                     <div class="p-3 flex flex-column justify-center items-center">
-                        <label for="chat"
-                            class="p-2 bg-[#0505ff] text-[#fff] rounded-sm">Upload &uarr;
+                        <label for="chat">Upload &uarr;
                             <input
                                 type="file"
                                 name="chat"
@@ -138,25 +133,14 @@
                     <em>{uploadedChatFile.name} ({uploadedChatFile.size} Bytes)</em>
                 </p>
                 <div class="p-2">
-                    <button
-                        onclick={async () => {
-                            alert();
-                            isCounting = true;
-                            try {
-                                await countEmojis();
-                            } finally {
-                                isCounting = false;
-                            }
-                        }}>Count Emojis</button>
+                    <button onclick={countEmojis}>Count Emojis</button>
                     </div>
                 </div>
                 <div class="p-2">
-                    <button onclick={tryAnotherChat}>{isCounting ? "Shit" : "Upload a different chat"}</button>
+                    <button onclick={tryAnotherChat}>Upload a different chat</button>
                 </div>
         {/if}
-        {#if isCounting}
-            <p>Wait up</p>
-        {/if}
+
         {#if countedEmojis.length !== 0}
             <div class="max-h-[65dvh] overflow-auto">
                 <div class="sticky top-0 left-0 right-0 bg-[#fff] shadow-sm">
