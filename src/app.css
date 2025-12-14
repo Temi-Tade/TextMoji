@@ -1,0 +1,46 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+html {
+    height: 100dvh;
+}
+
+body{
+    height: 100%;
+}
+
+:root{
+    --button-primary: #0123ef;
+    --link-primary: #343434;
+}
+
+button{
+    background-color: var(--button-primary);
+    padding: .6rem;
+    border-radius: .6rem;
+    color: #fff;
+}
+
+button:disabled{
+    background-color: #7777 !important;
+}
+
+input, textarea {
+    /* width: 100% */
+    border-radius: .6rem;
+    margin: .5rem auto;
+    display: block;
+}
+
+a {
+    color: var(--link-primary);
+}
+
+h1 {
+    font-size: 1.75rem;
+}
+
+input:read-only, textarea:read-only{
+    background-color: #ccc7;
+}
