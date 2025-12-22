@@ -111,8 +111,8 @@
         topFiveEmojis.forEach(entry => topFiveText += `\n${entry.emoji} -> ${entry.count}`);
         try {
             navigator.share({
-                text: `Top emojis in WhatsApp chat with ${uploadedChatFile.name}: ${topFiveEmojis.forEach((e) => `${e.emoji} ${e.count}`)}`,
-                url: location.toString(),
+                text: `Top emojis in WhatsApp chat with ${uploadedChatFile.name}: ${topFiveText}`,
+                url: https://temi-tade.github.io/TextMoji,
             });
         } catch {
             showModal = true;
