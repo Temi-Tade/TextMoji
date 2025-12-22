@@ -111,7 +111,7 @@
         topFiveEmojis.forEach(entry => topFiveText += `\n${entry.emoji} -> ${entry.count}`);
         try {
             navigator.share({
-                text: `Top 5 emojis in WhatsApp chat with ${uploadedChatFile.name}: ${topFiveEmojis.forEach((e) => `${e.emoji} ${e.count}`)}`,
+                text: `Top emojis in WhatsApp chat with ${uploadedChatFile.name}: ${topFiveEmojis.forEach((e) => `${e.emoji} ${e.count}`)}`,
                 url: location.toString(),
             });
         } catch {
