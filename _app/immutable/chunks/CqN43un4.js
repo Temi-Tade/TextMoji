@@ -1,0 +1,1 @@
+import"./DsnmJJEf.js";import{b as h,t as l,a as m,d as a,r}from"./BQYZwpWA.js";import{s as p}from"./-RwXhcxS.js";var d=h('<header class="p-2 sticky top-0 left-0 right-0 z-50 bg-[#fff] shadow-sm"><h1 class="text-xl"> </h1></header>');function v(s,o){var t=d(),e=a(t),f=a(e,!0);r(e),r(t),l(()=>p(f,o.label)),m(s,t)}export{v as H};
