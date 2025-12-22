@@ -4,6 +4,7 @@
 
 html {
     height: 100dvh;
+    font-family: "Raleway", sans-serif;
 }
 
 body{
@@ -36,6 +37,7 @@ input, textarea {
 
 a {
     color: var(--link-primary);
+    text-decoration: underline;
 }
 
 h1 {
@@ -44,4 +46,12 @@ h1 {
 
 input:read-only, textarea:read-only{
     background-color: #ccc7;
+}
+
+ul{
+    list-style-position: inside;
+}
+
+li{
+    margin: .25rem 0;
 }

@@ -19,7 +19,7 @@
     let uploadedChatFile: any = $state();
     let result:string = $state("");
 
-    let sort: string = $state("descending")
+    let sort: string = $state("descending");
     let showModal: boolean = $state(true);
     let showToast: boolean = $state(false);
     let toastText: string = $state("");
@@ -45,48 +45,53 @@
         request.send();
     })
 
+    function removeToast() {
+        setTimeout(() => {
+            showToast = false;
+        }, 3000);
+    }
+
     function handleFileUpload(e:Event) {
         uploadedChatFile = (e.target as any).files[0];
         const fileReader = new FileReader();
-        modalText = "Loading file..."
+        modalText = "Parsing chat..."
         showModal = true;
 
         fileReader.onload = async function (e:Event) {
             result = await (e.target as any).result;
             showModal = false;
+
+            const chars = result.replace(/\d/g, "").split("").filter(char => char !== " "); // remove digits and whitespaces
+
+            unicodeEmojis.forEach((e: any) => {
+                const chatEmojis = chars.filter((c: any) => c === e);
+                emojis.push(...chatEmojis);
+            });
+
+            countEmojis();
         }
 
         fileReader.readAsText(uploadedChatFile);
     }
 
-    function parseChat(chat:string) {
-        alert("Analyzing and counting... Depending on how large the chat it, this might take a while.");
-        const chars = chat.replace(/\d/g, "").split("").filter(char => char !== " ");
-
-        unicodeEmojis.forEach((e: any, i:number) => {
-            const chatEmojis = chars.filter((c: any) => c.charCodeAt() === e.charCodeAt());
-            emojis.push(...chatEmojis);
-        });
-
-        return emojis;
-    }
-
-    async function countEmojis() {
+    function countEmojis() {
         countedEmojis.length = 0;
-        const parsedEmojis = parseChat(result);
-        uniqueEmojis = [...new Set(parsedEmojis)];
+        uniqueEmojis = [...new Set(emojis)];
         
         uniqueEmojis.forEach(async (e:any) => {
             countedEmojis.push({
                 emoji: e,
-                count: parsedEmojis.filter((c: any) => e.charCodeAt() === c.charCodeAt()).length
+                count: emojis.filter((c: any) => e === c).length
             });
         });
 
         countedEmojis.sort((a,b) => b.count - a.count);
         if (countedEmojis.length === 0) {
-            showModal = true;
-            modalText = "I could not find emojis in here, ensure you uploaded a TXT file of an exported WhatsApp chat. If you are sure you did, you lot don't use emojis when chatting eh?";   
+            showToast = true;
+            toastText = "I could not find emojis in here, ensure you uploaded a TXT file of an exported WhatsApp chat. If you are sure you did, you lot don't use emojis when chatting eh?";
+
+            removeToast();
+            tryAnotherChat();
         }
     }
 
@@ -97,6 +102,29 @@
         sort = "descending";
         chatFile = undefined;
         uploadedChatFile = undefined;
+    }
+
+    function shareStats() {
+        let topFiveText = "";
+        const topFiveEmojis = countedEmojis.slice(0, 5);
+
+        topFiveEmojis.forEach(entry => topFiveText += `\n${entry.emoji} -> ${entry.count}`);
+        try {
+            if (navigator.canShare()) {
+                try {
+                    navigator.share({
+                        text: `Top 5 emojis in WhatsApp chat with ${uploadedChatFile.name}: ${topFiveEmojis.forEach((e) => `${e.emoji} ${e.count}`)}`,
+                        url: location.toString(),
+                    });
+                } catch {
+                    showModal = true;
+                    modalText = "An error occured while trying to share";
+                }
+            }   
+        } catch {
+            showModal = true;
+            modalText = "An error occured while trying to share";
+        }
     }
 </script>
 
@@ -127,26 +155,12 @@
             </div>
         {/if}
         
-        {#if result !== "" && countedEmojis.length === 0 && showModal === false}
-            <div class="flex flex-col justify-center items-center">
-                <p class="text-center">
-                    <em>{uploadedChatFile.name} ({uploadedChatFile.size} Bytes)</em>
-                </p>
-                <div class="p-2">
-                    <button onclick={countEmojis}>Count Emojis</button>
-                    </div>
-                </div>
-                <div class="p-2">
-                    <button onclick={tryAnotherChat}>Upload a different chat</button>
-                </div>
-        {/if}
-
         {#if countedEmojis.length !== 0}
             <div class="max-h-[65dvh] overflow-auto">
                 <div class="sticky top-0 left-0 right-0 bg-[#fff] shadow-sm">
-                    <h3 class="text-center text-xl font-bold">Emojis found in chat</h3>
+                    <h3 class="text-center text-xl font-bold">Emojis found in chat:</h3>
                     <p class="flex justify-end">
-                        <button 
+                        <button
                             class="!bg-[transparent] !text-[var(--button-primary)] text-md"
                             onclick={() => {
                                 if (sort === "ascending") {
@@ -163,16 +177,18 @@
                     <span>Emoji</span>
                     <span>Usage</span>
                 </p>
-                {#each countedEmojis as entry}
-                    <p class="flex p-1 w-[80dvw] rounded-sm even:bg-[#ccc7]">
-                        <span>{entry.emoji}</span>
-                        <span>{formatter.format(entry.count)}</span>
-                    </p>
-                {/each}
+                <div class="flex justify-center flex-col items-center">
+                    {#each countedEmojis as entry}
+                        <p class="flex p-1 w-[80dvw] rounded-sm even:bg-[#ccc7]">
+                            <span>{entry.emoji}</span>
+                            <span>{formatter.format(entry.count)}</span>
+                        </p>
+                    {/each}
+                </div>
             </div>
 
             <div class="mt-4 p-2 flex flex-col justify-around items-center h-[8rem]">
-                <button>Share stats</button>
+                <button onclick={shareStats}>Share stats</button>
                 <button onclick={tryAnotherChat}>Upload another chat</button>
             </div>
         {/if}

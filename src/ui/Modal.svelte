@@ -9,10 +9,6 @@
                 onclick={onClose}
                 class="text-lg !bg-[transparent] !text-[#333] !p-1">&times;</button>
         </div>
-        <p>{@render children?.()}</p>
+        <p class="text-center text-[1.2rem]">{@render children?.()}</p>
     </div>
 </div>
-
-<!-- 
-flow: sign in with google -> setup github -> enter name of repo to share/go to feed
--->
